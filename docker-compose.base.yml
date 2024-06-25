@@ -1,0 +1,36 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${NGINX_PORT}:80"
+    networks:
+      wordpress:
+        aliases:
+          - ${NGINX_ALIAS}
+    environment:
+      SERVER_NAME: ${NGINX_ALIAS}
+    volumes:
+      - ./:/var/www/html
+      - ./.docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+
+  php-fpm:
+    build:
+      context: .docker/php
+    networks:
+      - wordpress
+    command: [ "php-fpm" ]
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+
+  mysql:
+    image: mysql:8
+    ports:
+      - "${MYSQL_PORT}:3306"
+    networks:
+      - wordpress
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql

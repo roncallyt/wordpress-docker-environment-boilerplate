@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+export APP_ENV=${APP_ENV:-local}
+export NGINX_PORT=${NGINX_PORT:-80}
+export NGINX_ALIAS=${NGINX_ALIAS:-localhost}
+export MYSQL_PORT=${MYSQL_PORT:-3306}
+export MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-1234}
+
+COMPOSE_FILE="dev"
+
+COMPOSE="docker compose --env-file .docker/.env -f docker-compose.${COMPOSE_FILE}.yml"
+
+if [ $# -gt 0 ];then
+
+    if [ "$1" == "art" ]; then
+        shift 1
+        $COMPOSE run --rm \
+            -w /var/www/html \
+            php-fpm \
+            php artisan "$@"
+
+    elif [ "$1" == "start" ]; then
+        shift 1
+        $COMPOSE up -d
+
+    elif [ "$1" == "destroy" ]; then
+        shift 1
+        $COMPOSE down "$@"
+
+    elif [ "$1" == "composer" ]; then
+        shift 1
+        $COMPOSE run --rm \
+            -w /var/www/html \
+            php-fpm \
+            composer "$@"
+
+    else
+        $COMPOSE "$@"
+    fi
+
+else
+    $COMPOSE ps
+fi

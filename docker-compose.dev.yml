@@ -1,0 +1,22 @@
+services:
+  nginx:
+    extends:
+      file: docker-compose.base.yml
+      service: nginx
+
+  php-fpm:
+    extends:
+      file: docker-compose.base.yml
+      service: php-fpm
+
+  mysql:
+    extends:
+      file: docker-compose.base.yml
+      service: mysql
+
+volumes:
+  mysql-data:
+
+networks:
+  wordpress:
+    driver: bridge
